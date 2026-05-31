@@ -1,0 +1,85 @@
+// Types
+num = 42
+flt = 3.14
+s = "hello"
+b = true
+n = nil
+lst = [1, 2, 3, 4, 5]
+
+// Arithmetic, logic, comparison, slices
+sum = num + 2 * 3 - 1
+is_even = (sum % 2 == 0) and not false
+slice = s[1:4]
+
+// Compound assignments
+num += 10
+s = s + " world" - "ld"
+lst *= 2
+
+// if / else if / else
+if num > 50 then
+    result = "big"
+else if num == 52 then
+    result = "just right"
+else
+    result = "small"
+end if
+
+// while with break and continue
+count = 0
+while count < 10
+    count += 1
+    if count == 3 then
+        continue
+    else if count == 7 then
+        break
+    end if
+end while
+
+// for with range
+sum2 = 0
+for i in range(1, 5, 1)
+    sum2 += i
+end for
+
+// Higher-order functions
+apply_twice = function(f, x)
+    return f(f(x))
+end function
+
+double = function(n)
+    return n * 2
+end function
+
+res = apply_twice(double, 5)
+
+// Closures
+make_counter = function()
+    count = 0
+    inner = function()
+        count = count + 1
+        return count
+    end function
+    return inner
+end function
+
+counter = make_counter()
+counter()
+counter()
+
+// Built-in string functions
+words = split("this is itmo", " ")
+joined = join(words, "-")
+newstr = replace("abcabc", "a", "z")
+length = len(words)
+
+// parse_num returns nil on failure
+parsed = parse_num("42x")
+if parsed == nil then
+    fallback = 0
+end if
+
+print(result)
+print(res)
+print(joined)
+print(newstr)
