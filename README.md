@@ -1,71 +1,155 @@
-# Лабораторная работа №10: Интерпретатор ITMOScript
+# ITMOScript
 
-[![C++](https://img.shields.io/badge/-C%2B%2B-blue)](https://isocpp.org/)
-[![Build](https://img.shields.io/badge/Build-Main-brightgreen)](https://github.com/is-itmo-c-24/labwork10-notakeith/tree/deadline0/bin)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+A dynamically-typed scripting language with a hand-written interpreter in C++17. Implements the full compilation pipeline: **Lexer → Parser → AST → Interpreter**, with lexical scoping, first-class functions, list slicing, and automatic memory management.
 
----
+## Language
 
-## 🎯 Описание проекта
+### Types
 
-**ITMOScript** — это динамически типизированный скриптовый язык, разработанный для обучения основам интерпретации. Язык поддерживает:
+`number` · `string` · `bool` · `nil` · `list` · `function`
 
-* ✨ **Примитивы**: числа (`number`), строки (`string`), логические значения (`bool`), `nil`.
-* 🔗 **Составные типы**: списки (`list`), функции первого класса (`function`).
-* 🛠 **Операции**: арифметические, логические, сравнения, индексирование и присваивание.
-* 🔄 **Управление потоком**: `if/else`, `while`, `for`, `break`, `continue`.
-* 🔄 **Автоматическое управление памятью**: сборка мусора, переменные вышедшие из области видимости удаляются автоматически.
+### Syntax
 
-Лабораторная работа включает реализацию лексера, парсера, AST и интерпретатора.
+```python
+# Variables & arithmetic
+x = 10
+y = x ^ 2 + 3 * x - 1     # ^ is exponentiation
 
-## 📖 Документация
+# Strings
+greeting = "Hello, " + "world!"
+repeated = "ha" * 3        # "hahaha"
 
-Полная спецификация языка и руководство пользователя находятся в разделе `docs`:
+# Lists & slicing
+nums = [1, 2, 3, 4, 5]
+print(nums[1:4])           # [2, 3, 4]
+print(nums[:2])            # [1, 2]
 
-* [Спефикация синтаксиса и семантики](docs/spec.md)
-* [Примеры использования ITMOScript](docs/examples.md)
-* [Описание модулей и архитектуры](docs/architecture.md)
+# Control flow
+if x > 5 then
+    print("big")
+else if x == 5 then
+    print("five")
+else
+    print("small")
+end if
 
-## 📂 Структура проекта
+# Loops
+while x > 0
+    x -= 1
+end while
 
-```plaintext
-├── include/        # Заголовочные файлы (Lexer, Parser, AST, Builtins, Interpreter)
-├── src/            # Исходный код реализации
-├── docs/           # Документация (спецификации, примеры, архитектура)
-├── example/        # Скрипты-примеры (*.is)
-├── CMakeLists.txt  # CMake конфигурация
-└── README.md       # Этот файл
-```
+for i in range(0, 10, 2)
+    print(i)               # 0 2 4 6 8
+end for
 
-## 📝 Синтаксис ITMOScript
-
-```is
-# Пример функции вычисления факториала
-factorial = function(n)
-    if n <= 1 then
-        return 1
-    else
-        return n * factorial(n - 1)
-    end if
+# Functions (first-class, closures)
+fib = function(n)
+    if n == 0 then return 0 end if
+    a = 0
+    b = 1
+    for i in range(1, n, 1)
+        c = a + b
+        a = b
+        b = c
+    end for
+    return b
 end function
 
-print(factorial(5))  # 120
+print(fib(10))             # 55
+
+# FizzBuzz — string * bool trick
+fizzBuzz = function(n)
+    for i in range(1, n)
+        s = "Fizz" * (i % 3 == 0) + "Buzz" * (i % 5 == 0)
+        if s == "" then print(i) else print(s) end if
+    end for
+end function
+fizzBuzz(20)
 ```
 
-**Основные элементы:**
+### Built-ins
 
-| Категория          | Примеры                                                                |
-| ------------------ | ---------------------------------------------------------------------- |
-| Типы               | `number`, `string`, `bool`, `nil`, `list`, `function`                  |
-| Арифметика         | `+`, `-`, `*`, `/`, `%`, `^`                                           |
-| Логика и сравнения | `and`, `or`, `not`, `<`, `>`, `==`, `!=`                               |
-| Управление потоком | `if...then...else...end if`, `while...end while`, `for...in...end for` |
-| Функции            | `function` и `end function`, `return`                                  |
+| Function | Description |
+|----------|-------------|
+| `print(x)` | Print value with newline |
+| `len(x)` | Length of list or string |
+| `range(start, end[, step])` | Generate a numeric range |
+| `type(x)` | Return type name as string |
 
-## 🎨 Расширение VSC
+### Operators
 
-Специально для данной лабораторной работы был создан [плагин для VSC, который добавляет поддержку синтаксиса ITMOScript](https://github.com/notakeith/itmoscript-syntax)
+| Category | Operators |
+|----------|-----------|
+| Arithmetic | `+` `-` `*` `/` `%` `^` |
+| Comparison | `==` `!=` `<` `>` `<=` `>=` |
+| Logical | `and` `or` `not` |
+| Assignment | `=` `+=` `-=` `*=` `/=` `%=` `^=` |
 
-## 📄 Лицензия
+## Architecture
 
-Проект распространяется под лицензией **MIT License**. Подробности в файле [LICENSE](LICENSE).
+```
+Source text
+    │
+    ▼
+┌─────────┐    tokens    ┌──────────┐    AST    ┌─────────────┐
+│  Lexer  │ ──────────► │  Parser  │ ─────────►│ Interpreter │
+└─────────┘              └──────────┘           └─────────────┘
+                                                       │
+                                                  Environment
+                                                  (scope chain)
+```
+
+| Module | File | Responsibility |
+|--------|------|----------------|
+| Lexer | `lib/Lexer.h / .cpp` | Tokenization, keyword recognition, string/number literals |
+| Parser | `lib/Parser.h / .cpp` | Recursive descent, operator precedence, block parsing |
+| AST | `lib/AST.h` | Node hierarchy: `NumberExpr`, `BinaryExpr`, `CallExpr`, `FunctionExpr`, … |
+| Value | `lib/Value.h / .cpp` | Dynamic type wrapper for all runtime values |
+| Environment | `lib/Environment.h / .cpp` | Symbol table, lexical scope chain |
+| Interpreter | `lib/Interpreter.h / .cpp` | AST traversal, expression evaluation, statement execution |
+| Builtins | `lib/Builtins.h / .cpp` | Standard library functions |
+
+Control flow (`return`, `break`, `continue`) is implemented via C++ exceptions caught at the appropriate scope boundary.
+
+## Build
+
+```bash
+git clone <repo-url>
+cd labwork10-notakeith
+mkdir build && cd build
+cmake ..
+cmake --build .
+```
+
+## Usage
+
+```bash
+# Run a script
+./bin/main path/to/script.is
+
+# Try the bundled examples
+./bin/main ../examples/fibonacci.is
+./bin/main ../examples/fizzBuzz.is
+./bin/main ../examples/slices.is
+```
+
+## Tests
+
+```bash
+ctest --output-on-failure
+```
+
+Tests cover: lexer tokenization, parser grammar, operator precedence, control flow, built-in functions, illegal operations, and type coercion.
+
+## Requirements
+
+- C++17
+- CMake 3.14+
+
+## VSCode Extension
+
+Syntax highlighting for `.is` files is available as a separate extension: [itmoscript-syntax](https://github.com/notakeith/itmoscript-syntax).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
