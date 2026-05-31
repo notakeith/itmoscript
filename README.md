@@ -1,3 +1,5 @@
+[Русский](README_RU.md)
+
 # ITMOScript
 
 A dynamically-typed scripting language with a hand-written interpreter in C++17. Implements the full compilation pipeline: **Lexer → Parser → AST → Interpreter**, with lexical scoping, first-class functions, list slicing, and automatic memory management.
