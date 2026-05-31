@@ -1,6 +1,16 @@
-[Русский](README_RU.md)
+<div align="center">
+    <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="banner-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="banner-light.svg">
+    <img alt="ITMOScript preview" src="banner-light.svg">
+    </picture>
+</div>
 
-# ITMOScript
+> [Русская версия](README_RU.md)
+
+[![C++17](https://img.shields.io/badge/C%2B%2B-17-blue?logo=cplusplus&logoColor=white)](https://en.cppreference.com/w/cpp/17)
+[![CMake](https://img.shields.io/badge/CMake-3.14%2B-064F8C?logo=cmake&logoColor=white)](https://cmake.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A dynamically-typed scripting language with a hand-written interpreter in C++17. Implements the full compilation pipeline: **Lexer → Parser → AST → Interpreter**, with lexical scoping, first-class functions, list slicing, and automatic memory management.
 
@@ -116,8 +126,8 @@ Control flow (`return`, `break`, `continue`) is implemented via C++ exceptions c
 ## Build
 
 ```bash
-git clone <repo-url>
-cd labwork10-notakeith
+git clone https://github.com/notakeith/itmoscript.git
+cd itmoscript
 mkdir build && cd build
 cmake ..
 cmake --build .
@@ -126,10 +136,9 @@ cmake --build .
 ## Usage
 
 ```bash
-# Run a script
 ./bin/main path/to/script.is
 
-# Try the bundled examples
+# Bundled examples
 ./bin/main ../examples/fibonacci.is
 ./bin/main ../examples/fizzBuzz.is
 ./bin/main ../examples/slices.is
@@ -143,14 +152,14 @@ ctest --output-on-failure
 
 Tests cover: lexer tokenization, parser grammar, operator precedence, control flow, built-in functions, illegal operations, and type coercion.
 
+## VSCode Extension
+
+Syntax highlighting for `.is` files: [itmoscript-syntax](https://github.com/notakeith/itmoscript-syntax).
+
 ## Requirements
 
 - C++17
 - CMake 3.14+
-
-## VSCode Extension
-
-Syntax highlighting for `.is` files is available as a separate extension: [itmoscript-syntax](https://github.com/notakeith/itmoscript-syntax).
 
 ## License
 
