@@ -1,0 +1,26 @@
+a = 10
+b = 20
+c = a + b * 2
+
+if c > 40 then
+    msg = "too big"
+else
+    msg = "ok"
+end if
+
+i = 0
+sum = 0
+
+while i < 5
+    sum = sum + i
+    i = i + 1
+end while
+
+square = function(x)
+    return x * x
+end function
+
+val = square(7)
+
+list = [1, 2, 3, 4]
+x = list[2]

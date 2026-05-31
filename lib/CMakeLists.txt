@@ -1,0 +1,1 @@
+add_library(itmoscript Interpreter.cpp Lexer.cpp Parser.cpp Value.cpp Builtins.cpp Environment.cpp)
