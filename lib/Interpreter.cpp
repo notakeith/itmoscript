@@ -180,9 +180,19 @@ Value Interpreter::eval_unary(AST::UnaryExpr* expr) {
 }
 
 Value Interpreter::eval_binary(AST::BinaryExpr* expr) {
+    const std::string& op = expr->op;
+
+    if (op == "and") {
+        if (!eval(expr->left).as_bool()) return Value(false);
+        return Value(eval(expr->right).as_bool());
+    }
+    if (op == "or") {
+        if (eval(expr->left).as_bool()) return Value(true);
+        return Value(eval(expr->right).as_bool());
+    }
+
     Value left = eval(expr->left);
     Value right = eval(expr->right);
-    const std::string& op = expr->op;
 
     if (op == "+") {
         if ((left.is_num() || left.is_bool()) && (right.is_num() || right.is_bool()))
@@ -316,6 +326,7 @@ if (op == "*") {
     if (op == "%") {
         if (!left.is_num() || !right.is_num())
             throw std::runtime_error("Operator '%' requires two numbers");
+        if (right.as_num() == 0) throw std::runtime_error("Modulo by zero");
         return Value(std::fmod(left.as_num(), right.as_num()));
     }
 
@@ -358,16 +369,6 @@ if (op == "*") {
         return Value(std::pow(left.as_num(), right.as_num()));
     }
 
-    if (op == "and") {
-        if (!eval(expr->left).as_bool()) return Value(false);
-        return Value(eval(expr->right).as_bool());
-    }
-    if (op == "or") {
-        if (eval(expr->left).as_bool()) return Value(true);
-        return Value(eval(expr->right).as_bool());
-    }
-
-
     throw std::runtime_error("Unknown binary operator: " + op);
 }
 
@@ -383,43 +384,42 @@ void Interpreter::exec_assign_stmt(AST::AssignStmt* stmt) {
         } catch (...) {
             env->define(stmt->name, val);
         }
-    } else if (stmt->op == "+=" || stmt->op == "-=" || stmt->op == "*=" || stmt->op == "/=") {
+    } else if (stmt->op == "+=" || stmt->op == "-=" || stmt->op == "*=" || stmt->op == "/=" || stmt->op == "%=" || stmt->op == "^=") {
         Value old = env->get(stmt->name);
-        Value delta = eval(stmt->value);
 
         if (stmt->op == "+=") {
-            if (old.is_num() && delta.is_num()) {
-                env->assign(stmt->name, Value(old.as_num() + delta.as_num()));
+            if (old.is_num() && val.is_num()) {
+                env->assign(stmt->name, Value(old.as_num() + val.as_num()));
                 return;
             }
-            if (old.is_str() && delta.is_str()) {
-                env->assign(stmt->name, Value(old.as_str() + delta.as_str()));
+            if (old.is_str() && val.is_str()) {
+                env->assign(stmt->name, Value(old.as_str() + val.as_str()));
                 return;
             }
             if (old.is_list()) {
                 auto& list = old.as_list();
-                if (delta.is_list()) {
-                    const auto& other = delta.as_list();
+                if (val.is_list()) {
+                    const auto& other = val.as_list();
                     list.insert(list.end(), other.begin(), other.end());
                 } else {
-                    list.push_back(delta);
+                    list.push_back(val);
                 }
                 return;
             }
         }
 
-        if (stmt->op == "-=" && old.is_num() && delta.is_num()) {
-            env->assign(stmt->name, Value(old.as_num() - delta.as_num()));
+        if (stmt->op == "-=" && old.is_num() && val.is_num()) {
+            env->assign(stmt->name, Value(old.as_num() - val.as_num()));
             return;
         }
 
         if (stmt->op == "*=") {
-            if (old.is_num() && delta.is_num()) {
-                env->assign(stmt->name, Value(old.as_num() * delta.as_num()));
+            if (old.is_num() && val.is_num()) {
+                env->assign(stmt->name, Value(old.as_num() * val.as_num()));
                 return;
             }
             if (old.is_str()) {
-                int repeat = static_cast<int>(std::floor(delta.as_num()));
+                int repeat = static_cast<int>(std::floor(val.as_num()));
                 if (repeat < 0) throw std::runtime_error("Can't repeat string negative times");
                 std::string result;
                 for (int i = 0; i < repeat; ++i) result += old.as_str();
@@ -427,7 +427,7 @@ void Interpreter::exec_assign_stmt(AST::AssignStmt* stmt) {
                 return;
             }
             if (old.is_list()) {
-                int repeat = static_cast<int>(std::floor(delta.as_num()));
+                int repeat = static_cast<int>(std::floor(val.as_num()));
                 if (repeat < 0) throw std::runtime_error("Can't repeat list negative times");
                 auto& list = old.as_list();
                 List result;
@@ -438,15 +438,22 @@ void Interpreter::exec_assign_stmt(AST::AssignStmt* stmt) {
             }
         }
 
-        if (stmt->op == "/=" && old.is_num() && delta.is_num()) {
-            if (delta.as_num() == 0)
+        if (stmt->op == "/=" && old.is_num() && val.is_num()) {
+            if (val.as_num() == 0)
                 throw std::runtime_error("Division by zero in '/='");
-            env->assign(stmt->name, Value(old.as_num() / delta.as_num()));
+            env->assign(stmt->name, Value(old.as_num() / val.as_num()));
             return;
         }
 
-        if (stmt->op == "%=" && old.is_num() && delta.is_num()) {
-            env->assign(stmt->name, Value(std::fmod(old.as_num(), delta.as_num())));
+        if (stmt->op == "%=" && old.is_num() && val.is_num()) {
+            if (val.as_num() == 0)
+                throw std::runtime_error("Modulo by zero in '%='");
+            env->assign(stmt->name, Value(std::fmod(old.as_num(), val.as_num())));
+            return;
+        }
+
+        if (stmt->op == "^=" && old.is_num() && val.is_num()) {
+            env->assign(stmt->name, Value(std::pow(old.as_num(), val.as_num())));
             return;
         }
 

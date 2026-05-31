@@ -13,10 +13,8 @@ class Parser {
     std::unique_ptr<AST::Expr> parseExpr();
     std::unique_ptr<AST::Expr> parseOr();
     std::unique_ptr<AST::Expr> parseAnd();
-    std::unique_ptr<AST::Expr> parseEquality();
     std::unique_ptr<AST::Expr> parseComparison();
     std::unique_ptr<AST::Expr> parseAdditive();
-    std::unique_ptr<AST::Expr> parseAdd();
     std::unique_ptr<AST::Expr> parseTerm();
     std::unique_ptr<AST::Expr> parsePower();
     std::unique_ptr<AST::Expr> parseUnary();

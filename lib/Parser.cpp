@@ -283,9 +283,6 @@ std::unique_ptr<AST::Expr> Parser::parseFactor() {
     }
     expect(TokenType::RBRACK);
     return std::make_unique<AST::ListExpr>(std::move(elems));
-
-        expect(TokenType::RBRACK);
-        return std::make_unique<AST::ListExpr>(std::move(elems));
     }
 
 
